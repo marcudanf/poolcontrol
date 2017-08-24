@@ -14,6 +14,7 @@
 #include "RTClib.h"
 
 //defines
+#define relay 0
 #define minut *60000
 #define HOME 0
 #define OTA 1
@@ -65,7 +66,7 @@ int lastMin=0;
 //function used to toggle the relay
 void toggle(){
 	state=!state;
-	digitalWrite(14,state);
+	digitalWrite(relay,state);
 	manual=1;
 	mod=0;
 }
@@ -162,8 +163,8 @@ void setup() {
 	server.begin();
 	Serial.println(WiFi.localIP());
 	//relay pin
-	pinMode(14,OUTPUT);
-	digitalWrite(14,0);
+	pinMode(relay,OUTPUT);
+	digitalWrite(relay,0);
 	//begin the temperature sensor
 	tempSensor.begin();
 	//restart the esp when ota programming is done
@@ -244,7 +245,7 @@ void loop(){
 		printPage(OTA);
 		//turn relay off if in ota mode
 		state=0;
-		digitalWrite(14,0);
+		digitalWrite(relay,state);
 		//wait for ota to end
 		while(1){
 		yield();
@@ -296,7 +297,7 @@ void treat(unsigned long long current_millis){
 	if(current_time>from_time&&current_time<to_time){
 		state=1;
 		checker=1;
-		digitalWrite(14,1);
+		digitalWrite(relay,state);
 		last_change=current_millis;
 		mod=0;
 		return;
@@ -305,27 +306,27 @@ void treat(unsigned long long current_millis){
 			//turn the relay off if it was on from the schedule
 			checker=0;
 			state=0;
-			digitalWrite(14,0);
+			digitalWrite(relay,state);
 		}
 		if(temp>webtemp){
 			if(temp>webtemp+6){
 				mod=0;
 				state=1;
 				last_change=current_millis;
-				digitalWrite(14,1);
+				digitalWrite(relay,state);
 				return;
 			}else if(mod==0){
 				mod=1;
 				last_change=current_millis;
 				state=1;
-				digitalWrite(14,1);
+				digitalWrite(relay,state);
 				return;
 			}
 			return;
 		}else{
 			if(mod==1&&current_millis-last_change>time_on minut){
 				state=0;
-				digitalWrite(14,0);
+				digitalWrite(relay,state);
 				mod=2;
 				last_change=current_millis;
 				return;
@@ -663,7 +664,7 @@ void treatRequest(){
 		else
 			state=1;
 		manual=0;
-		digitalWrite(14,state);
+		digitalWrite(relay,state);
 	}else if(request.indexOf("/settings")!=-1){
 		if(request.indexOf("timeon=")!=-1){
 			time_on=request.substring(request.indexOf("timeon=")+7,request.indexOf(" HTTP")).toInt();
