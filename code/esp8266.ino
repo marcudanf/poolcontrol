@@ -41,6 +41,9 @@ byte to_m;
 //wifi ssid and pass
 const char* ssid = "......";
 const char* password = "......";
+//ap ssid and pass
+const char* ap_ssid = "PoolControl";
+const char* ap_password = "";
 
 //temperature
 byte Val;
@@ -127,6 +130,7 @@ void setup() {
 	//begin wifi comunication
 	WiFi.mode(WIFI_AP_STA);
 	WiFi.begin(ssid,password);
+	WiFi.softAP(ap_ssid,ap_password);
 	//begin serial comunication
 	Serial.begin(9600);
 	//read webpage variables from eeprom
