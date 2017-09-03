@@ -42,11 +42,14 @@ byte to_h;
 byte to_m;
 
 //wifi ssid and pass
-char ssid[30];// = "1";
-char password[30];// = "MarcuCristinaDaniel";
+char ssid[30];
+char password[30];
 //ap ssid and pass
 const char* ap_ssid = "PoolControl";
 const char* ap_password = "";
+
+//temperature
+byte Val;
 
 //the server is on port 80(default)
 WiFiServer server(80);
@@ -55,8 +58,8 @@ WiFiClient client;
 String request;
 
 //other variables
-byte temp;
-byte webtemp=35;
+float temp;
+float webtemp=35;
 bool state=0;
 bool manual=0;
 bool priority=0;
@@ -87,35 +90,35 @@ void full_reset(){
 
 //function to read the log from eeprom
 void eepromRead(){
-  EEPROM.begin(512);
-  int addr=0;
-  byte Val;
-  for(int i=0;i<96+now.hour()*2+now.minute()/30;i++){
-    Val=EEPROM.read(i);
-    v[i]=Val;
-  }
-  EEPROM.end();
+	EEPROM.begin(512);
+	int addr=0;
+	byte Val;
+	for(int i=0;i<96+now.hour()*2+now.minute()/30;i++){
+		Val=EEPROM.read(i);
+		v[i]=Val;
+	}
+	EEPROM.end();
 }
 
 //function to delete th last day form eeprom
 void eepromShift(){
-  for(int i=48;i<144;i++){
-    EEPROM.begin(512);
-    byte Val=EEPROM.read(i);
-    EEPROM.write(i-48,Val);
-    EEPROM.end();
-  }
-  EEPROM.begin(512);
-  for(int i=96;i<144;i++)
-    EEPROM.write(i,0);
-  EEPROM.end();
+	for(int i=48;i<144;i++){
+		EEPROM.begin(512);
+		byte Val=EEPROM.read(i);
+		EEPROM.write(i-48,Val);
+		EEPROM.end();
+	}
+	EEPROM.begin(512);
+	for(int i=96;i<144;i++)
+		EEPROM.write(i,0);
+	EEPROM.end();
 }
 
 //function to write a new value to eeprom
 void eepromWrite(byte Val){
-  EEPROM.begin(512);
-  EEPROM.write(96+now.hour()*2+now.minute()/30,Val);
-  EEPROM.end();
+	EEPROM.begin(512);
+	EEPROM.write(96+now.hour()*2+now.minute()/30,Val);
+	EEPROM.end();
 }
 
 //used for the log
@@ -499,12 +502,12 @@ void loop(){
     return;
   }else if(request.indexOf("/log")!=-1){
     //log page
-    //read the log
-    eepromRead();
-    //print the page
-    printPage(LOG);
-    return;
-  }else if(request.indexOf("/time")!=-1){
+		//read the log
+		eepromRead();
+		//print the page
+		printPage(LOG);
+		return;
+	}else if(request.indexOf("/time")!=-1){
     //time settings page
     //adjust the time if requested
     treatRequest();
@@ -518,15 +521,15 @@ void loop(){
     return;
   }else if(request.indexOf("/settings")!=-1){
     //other settings page
-    //treat the request
-    treatRequest();
-    //print the page
-    printPage(SETTINGS);
-    return;
-  }else{
-    //print the default page
-    printPage(HOME);
-  }
+		//treat the request
+		treatRequest();
+		//print the page
+		printPage(SETTINGS);
+		return;
+	}else{
+		//print the default page
+		printPage(HOME);
+	}
 }
 
 void treat(unsigned long long current_millis){
